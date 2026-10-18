@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>teamname_phase1_report</title>
+<style>
+@page { size: A4; margin: 2cm; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "SimSun", sans-serif;
+  font-size: 10.5pt; line-height: 1.45; color: #1a1a1a;
+}
+h1 { font-size: 16pt; margin-bottom: 4pt; }
+h2 { font-size: 12.5pt; margin: 14pt 0 5pt; border-bottom: 1px solid #999; padding-bottom: 2pt; }
+h3 { font-size: 11pt; margin: 8pt 0 3pt; }
+p { margin: 4pt 0; text-align: justify; }
+ul, ol { margin: 4pt 0 4pt 18pt; }
+li { margin: 1.5pt 0; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0; font-size: 9.5pt; }
+th, td { border: 0.6pt solid #888; padding: 2.5pt 5pt; text-align: left; }
+th { background: #f0f0f0; font-weight: bold; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.meta td { border: 0.6pt solid #999; }
+.meta td:first-child { background: #f6f6f6; width: 22%; font-weight: bold; }
+code, .mono { font-family: "Consolas", "Courier New", monospace; font-size: 9pt; background: #f4f4f4; padding: 0 2pt; }
+pre { font-family: "Consolas", monospace; font-size: 8.5pt; background: #f7f7f7; border: 0.6pt solid #ccc; padding: 5pt 7pt; margin: 5pt 0; line-height: 1.35; white-space: pre-wrap; }
+.fig { text-align: center; margin: 7pt 0; }
+.fig img { max-width: 88%; }
+.figcap { font-size: 9pt; color: #444; margin-top: 2pt; text-align: center; }
+.cap { font-size: 9pt; color: #444; text-align: center; margin-top: 1pt; }
+.small { font-size: 9pt; color: #333; }
+.pagebreak { page-break-before: always; }
+.abstract { border: 0.8pt solid #666; padding: 6pt 9pt; margin: 6pt 0; background: #fafafa; }
+.toc-num { color: #555; }
+a { color: #1a4fa0; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>基于 CFPB 消费者投诉数据库的问题类型自动分类：<br>问题定义与计算原型</h1>
+<p class="small">CFPB Consumer Complaint Issue Classification: Problem Definition and Computational Prototype</p>
+
+<table class="meta">
+  <tr><td>项目阶段</td><td>阶段 1：问题与计算原型</td><td>日期</td><td>2026-10-18</td></tr>
+  <tr><td>团队成员</td><td colspan="3">邵飞翔、沈勇</td></tr>
+  <tr><td>仓库地址</td><td colspan="3">【填写：Git 仓库 URL】（提交标签：<code>phase-1-submission</code>）</td></tr>
+</table>
+
+<div class="abstract">
+<p><b>执行摘要。</b>本项目针对美国消费者金融保护局（CFPB）消费者投诉数据库（16,545,376 条记录，8.9&nbsp;GB，2011-12 至 2026-07）构建投诉问题类型（Issue）的自动分类系统，目标用户为监管机构分流部门与金融机构合规团队。本阶段完成了问题的精确界定、数据的计算建模（流式表示、归一化与校验规则），并实现了一个可复现的规则基线原型（Product→高频 Issue 映射）。在固定种子蓄水池抽样（n=200,000）与 80/20 确定性划分下，规则基线在留出测试集上取得准确率 0.507、宏 F1 0.047，显著优于多数类基线（0.445 / 0.004）。主要局限在于类别分布极度偏斜（信用报告类占 80.8%）与叙事文本仅 23.1% 覆盖。下一阶段将完成数据字典、防泄漏划分与文本特征基线。</p>
+</div>
+
+<h2>1. 修订后的项目背景</h2>
+<p>本项目为首阶段提交，无前期反馈修订。美国 CFPB 消费者投诉数据库是公开的金融消费纠纷记录库，消费者可就信用报告、债务催收、抵押贷款等问题提交投诉，机构须在法定期限内响应。截至 2026 年 7 月，该库累计 16,545,376 条投诉，且投诉量近十年增长约 32 倍（2015 年 16.8 万条 → 2025 年 544 万条，见图 1）。如此体量下，人工逐条判读投诉并分流至对应处置流程已不可行，自动识别投诉的<b>问题类型</b>（Issue，全库共 181 类）是分流、统计与监管分析的前置环节，也是本项目的切入点。</p>
+
+<div class="fig">
+  <img src="figures/fig1_trend.png">
+  <div class="figcap">图 1. CFPB 年度投诉量（2012–2026）。2026 年为不完整年度（截至 7 月 5 日），以灰色标示。数据由 <code>tools/figures.py</code> 从全量聚合结果复现。</div>
+</div>
+
+<h2>2. 问题定义</h2>
+<p><b>任务。</b>多类分类：给定一条消费者投诉在提交时刻可获得的字段，预测其标准化问题类型标签 Issue。</p>
+<p><b>输入。</b>投诉结构化字段（Product、Sub-product、State、Submitted via、Tags 等 8 个离散字段）以及可选的消费者叙事文本（自由文本，平均 1,020 字符，覆盖率 23.1%）。</p>
+<p><b>输出。</b>181 类 Issue 中的一个标签及置信度；当证据不足时系统应输出低置信度而非强行归类。</p>
+<p><b>目标用户与利益相关者。</b>（i）监管机构分流与统计人员——将新投诉路由至对应处置队列；（ii）金融机构合规部门——对自身投诉进行归因归类；（iii）消费者权益研究者。</p>
+<p><b>范围边界。</b>系统仅做问题类型的<b>描述性分类</b>；不做投诉属实性判断、不做责任认定、不提供法律建议；不预测机构处理结果（该任务类别极度不平衡，留作后续工作）。</p>
+<p><b>可衡量的成功定义。</b>在防泄漏的留出测试集上：（i）宏 F1 至少达到多数类基线的 1.3 倍；（ii）准确率不低于规则基线；（iii）全流程可由仓库脚本在固定种子下复现，指标差异 &lt; 0.1%。</p>
+
+<h2>3. 动机与相关工作</h2>
+<p><b>动机。</b>投诉量呈非线性增长（2024 年同比 +111.6%、2025 年 +99.1%），而问题类型的分布高度偏斜：前两类信用报告问题合计占 63.6%（图 2）。自动化分类可直接降低分流成本，并为后续的趋势预警提供结构化输入。</p>
+<p><b>相关工作（初步审查）。</b>（1）CFPB 官方数据库及数据字典 <a href="#ref1">[1]</a>：提供标准化 Issue 标注，构成本项目的弱监督标签来源；（2）Kaggle 上的同名数据集与若干社区分析 notebook <a href="#ref2">[2]</a>：多为描述性统计，未给出可复现的分类基线；（3）短文本多类分类的经典方法（词袋 + 逻辑回归、线性 SVM）<a href="#ref3">[3]</a>：作为阶段 3 的可解释比较对象；（4）CFPB 投诉的舆情与信用风险研究 <a href="#ref4">[4]</a>：使用投诉文本做风险信号挖掘，但未处理类别偏斜问题。<b>差距</b>：现有公开工作缺少在全量数据上、带防泄漏划分与可复现协议的分类基线，本项目以工程化的可复现性为切入点。</p>
+
+<div class="fig">
+  <img src="figures/fig2_issue_dist.png">
+  <div class="figcap">图 2. Top 问题类型分布（全量统计）。红色为信用报告类问题。</div>
+</div>
+
+<div class="pagebreak"></div>
+<h2>4. 计算建模</h2>
+<h3>4.1 数据表示</h3>
+<p>原始文件为 8.9&nbsp;GB CSV（16 列）。注意其<b>物理行数（27,656,644）大于记录数（16,545,376）</b>，因叙事文本字段内嵌换行符，任何按行切分的解析都是错误的——本原型使用标准 <code>csv</code> 模块流式解析。每条记录表示为 <code>Complaint</code> 数据类：缺失字段统一为 <code>UNKNOWN</code>，州名大写归一，产品名按历史 schema 变更表归一（如 <code>Bank account or service</code> → <code>Checking or savings account</code>）。解析过程维护审计计数器（总行数 / 有效行 / 拒绝行及原因），保证数据处理可核查。</p>
+<h3>4.2 模块分解与流程</h3>
+<pre>parser.py    流式解析 + 校验 + 归一化  →  Complaint 迭代器
+sampler.py   蓄水池抽样（O(n) 内存，固定种子） + 确定性 80/20 划分
+baseline.py  RuleBaselineClassifier：学习 Product→最高频 Issue 映射，
+             未见产品回退全局多数类；GlobalMajorityBaseline 作对照
+evaluate.py  准确率 / 宏 F1 / 分类别 P-R-F1（指标自行实现，可复算）</pre>
+<p>原型处理流程：全量 CSV → 流式校验解析 → 蓄水池抽样 n=200,000（seed=42）→ 确定性划分（先按 Complaint ID 排序消除文件顺序影响，再以同一种子洗牌切分）→ 训练规则基线 → 留出集评估 → 输出 JSON 指标。</p>
+<h3>4.3 关键假设与约束</h3>
+<ul>
+  <li>Issue 字段由 CFPB 标准化标注，视为弱监督标签；标注质量将在阶段 2 抽样人工核查。</li>
+  <li>同一消费者可能批量提交模板化投诉（叙事披露率由 2017 年 47.5% 降至 2025 年 22.5% 可佐证），记录间不满足独立同分布——随机划分下的指标偏乐观，阶段 2 将改为时间外划分。</li>
+  <li>规则基线仅使用 Product 单特征，其作用是建立可解释的性能下界而非最终方案。</li>
+</ul>
+<h3>4.4 运行时间与可扩展性（实测）</h3>
+<table>
+  <tr><th>操作</th><th class="num">规模</th><th class="num">用时</th><th class="num">内存特征</th></tr>
+  <tr><td>全量流式聚合扫描（两次独立验证）</td><td class="num">16,545,376 条</td><td class="num">165 s（≈10 万条/秒）</td><td>常数级（计数器基数：产品 16 / 州 64 / 公司 8,037）</td></tr>
+  <tr><td>蓄水池抽样 + 基线评估</td><td class="num">n = 200,000</td><td class="num">127 s</td><td>O(n)</td></tr>
+  <tr><td>单元测试（pytest）</td><td class="num">16 项</td><td class="num">0.2 s</td><td>—</td></tr>
+</table>
+<p class="small">环境：Windows 11，Python 3.13（托管隔离环境）。结论：数据不可整体载入内存，必须流式/分块处理；但聚合与抽样成本线性、可控，普通笔记本即可完成迭代。</p>
+
+<h2>5. 证据与分析</h2>
+<p><b>基线结果。</b>在留出测试集（n=40,000，类别数 146）上，规则基线准确率 0.507、宏 F1 0.047；多数类基线为 0.445 / 0.004（全局多数类为「Incorrect information on your report」）。规则基线共学习 13 条产品规则。宏 F1 远低于准确率，直接反映类别偏斜：头部类被准确捕获，而大量尾部类（支持度低）拉低宏平均——这正是阶段 3 需要解决的核心问题，而非本阶段的缺陷。</p>
+<div class="fig">
+  <img src="figures/fig3_baseline.png">
+  <div class="figcap">图 3. 基线对比（准确率与宏 F1）。由 <code>tools/figures.py</code> 从 <code>results/baseline_eval.json</code> 复现。</div>
+</div>
+<p><b>测试与可复现性。</b>仓库含 16 个自动化测试，覆盖：非法日期/缺列行的拒绝与计数、产品历史名归一化、空叙事接受、未见产品的多数类回退、空训练集报错、指标取值域、蓄水池抽样与划分的种子确定性、端到端冒烟测试。<code>pytest</code> 全部通过（0.2 s）。固定种子下重复运行评估脚本，指标完全一致。一次失败的实验：最初按物理行切分 CSV 导致记录数虚高 67%，改用 csv 模块后修正——该教训已写入解析器文档。</p>
+
+<h2>6. 局限性与风险</h2>
+<ul>
+  <li><b>类别偏斜</b>：信用报告类占 80.8%，宏 F1 与准确率的差距表明尾部类识别不足；随机划分进一步放大乐观偏差（缓解：阶段 2 采用时间外划分 + 分层指标）。</li>
+  <li><b>文本覆盖率低</b>：仅 23.1% 投诉含叙事文本，纯文本模型可用样本上限 381 万条；元数据与文本两条特征线须分开评估。</li>
+  <li><b>记录 ≠ 独立消费者</b>：批量模板化投诉普遍存在，聚合统计与分类指标均受其影响。</li>
+  <li><b>伦理</b>：叙事文本虽经 CFPB 脱敏，仍可能含个人经历细节；本项目仅在聚合层面使用文本，不做任何重识别尝试；分类错误的主要后果是分流延迟，属低风险，但若用于自动化处置优先级排序则须人工复核。</li>
+  <li><b>进度</b>：全量文本特征化（嵌入）成本未验证，若超预算则降级为 TF-IDF。</li>
+</ul>
+
+<h2>7. 下一阶段计划（阶段 2：数据与实验设计）</h2>
+<table>
+  <tr><th>任务</th><th>负责人</th><th>完成标准</th></tr>
+  <tr><td>数据字典与数据卡片（16 字段逐条文档化）</td><td>邵飞翔</td><td>附录可查、许可与来源注明</td></tr>
+  <tr><td>有目的的 EDA：类别不平衡量化、叙事披露率趋势、缺失模式</td><td>沈勇</td><td>每图配解释；至少 1 个改变设计的观察</td></tr>
+  <tr><td>防泄漏划分：按时间外划分 + 消费者级去重检查</td><td>邵飞翔</td><td>划分脚本可复现，泄漏检查通过</td></tr>
+  <tr><td>TF-IDF + 逻辑回归文本基线</td><td>沈勇</td><td>留出集指标 + 置信区间（重复 5 种子）</td></tr>
+</table>
+
+<h2>8. 个人贡献</h2>
+<p><b>邵飞翔：</b>数据流式解析与抽样模块（<code>src/parser.py</code>、<code>src/sampler.py</code>），含产品名历史 schema 归一化与字段校验规则；测试 1–7（边界输入、归一化与拒绝计数）；全量数据聚合统计与运行时间/可扩展性实测（表 1）。</p>
+<p><b>沈勇：</b>基线与评估模块（<code>src/baseline.py</code>、<code>src/evaluate.py</code>），含指标自行实现与结果可复算；测试 8–16（指标取值域、种子确定性、端到端冒烟）；报告图表生成脚本（<code>tools/figures.py</code>）与阶段 1 报告撰写。</p>
+<p class="small">两人共同完成问题定义、局限性与下一阶段计划的讨论与定稿。</p>
+
+<h2>9. 参考文献</h2>
+<ol class="small">
+  <li id="ref1">Consumer Financial Protection Bureau. Consumer Complaint Database. https://www.consumerfinance.gov/data-research/consumer-complaints/ （数据截至 2026-07-05）.</li>
+  <li id="ref2">Kaggle. CFPB Consumer Complaints Dataset and community notebooks. https://www.kaggle.com/datasets/selener/consumer-complaint-database</li>
+  <li id="ref3">Joachims, T. Text categorization with support vector machines. ECML, 1998.</li>
+  <li id="ref4">Agarwal, S. et al. Consumer complaints and financial risk monitoring. Journal of Consumer Affairs, 2017.</li>
+</ol>
+
+<h2>10. 附录</h2>
+<h3>附录 A. 生成式 AI 与外部资源使用声明</h3>
+<p class="small">本项目使用生成式 AI 助手（WorkBuddy）辅助：代码框架搭建、测试用例设计、报告文字起草。全部统计数字与评估指标均来自本仓库脚本在真实数据上的本地运行；团队成员负责审查代码逻辑、复现运行结果并对全部主张负责。除 matplotlib（图表）与 pytest（测试）外未使用其他第三方库；无外部代码拷贝。</p>
+<h3>附录 B. 可复现命令</h3>
+<pre class="small">pip install -r requirements.txt
+pytest tests/ -v
+python -m src.evaluate --data /path/to/complaints.csv --sample 200000 --seed 42
+python tools/figures.py</pre>
+
+</body>
+</html>

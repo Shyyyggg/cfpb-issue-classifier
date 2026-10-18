@@ -1,0 +1,112 @@
+{
+ "config": {
+  "data": "complaints.csv",
+  "sample": 200000,
+  "seed": 42,
+  "test_ratio": 0.2
+ },
+ "parse_stats": {
+  "total_rows": 16545376,
+  "valid_rows": 16545376,
+  "bad_rows": 0,
+  "bad_reasons": {}
+ },
+ "rule_baseline": {
+  "accuracy": 0.5071,
+  "macro_f1": 0.0466,
+  "n_test": 40000,
+  "n_classes": 146,
+  "top_classes": [
+   [
+    "Incorrect information on your report",
+    17800
+   ],
+   [
+    "Improper use of your report",
+    7603
+   ],
+   [
+    "Problem with a company's investigation into an existing problem",
+    4974
+   ],
+   [
+    "Problem with a credit reporting company's investigation into an existing problem",
+    1490
+   ],
+   [
+    "Attempts to collect debt not owed",
+    1172
+   ],
+   [
+    "Written notification about debt",
+    569
+   ],
+   [
+    "Managing an account",
+    493
+   ],
+   [
+    "Took or threatened to take negative or legal action",
+    331
+   ],
+   [
+    "Loan modification,collection,foreclosure",
+    288
+   ],
+   [
+    "False statements or representation",
+    285
+   ]
+  ]
+ },
+ "majority_baseline": {
+  "accuracy": 0.445,
+  "macro_f1": 0.0042,
+  "n_test": 40000,
+  "n_classes": 146,
+  "top_classes": [
+   [
+    "Incorrect information on your report",
+    17800
+   ],
+   [
+    "Improper use of your report",
+    7603
+   ],
+   [
+    "Problem with a company's investigation into an existing problem",
+    4974
+   ],
+   [
+    "Problem with a credit reporting company's investigation into an existing problem",
+    1490
+   ],
+   [
+    "Attempts to collect debt not owed",
+    1172
+   ],
+   [
+    "Written notification about debt",
+    569
+   ],
+   [
+    "Managing an account",
+    493
+   ],
+   [
+    "Took or threatened to take negative or legal action",
+    331
+   ],
+   [
+    "Loan modification,collection,foreclosure",
+    288
+   ],
+   [
+    "False statements or representation",
+    285
+   ]
+  ]
+ },
+ "majority_label": "Incorrect information on your report",
+ "n_rules_learned": 13
+}
