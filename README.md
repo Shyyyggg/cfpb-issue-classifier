@@ -39,8 +39,17 @@ python -m src.evaluate --data data/sample.csv --sample 4000 --seed 42
 ## 运行测试
 
 ```bash
-pytest tests/ -v        # 11 个测试
+pytest tests/ -v        # 16 个测试
 ```
+
+## 一键验证（推荐）
+
+```bash
+python tools/verify.py
+```
+
+依次执行：全部自动化测试 → 样本数据评估流水线 → 重新生成报告图表 → 产物完整性
+检查。全部通过时输出 `4/4 通过` 并以退出码 0 结束；任一失败则退出码 1。
 
 ## 重新生成报告图表
 
