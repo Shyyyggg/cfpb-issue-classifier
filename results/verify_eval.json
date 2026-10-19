@@ -1,0 +1,112 @@
+{
+ "config": {
+  "data": "sample.csv",
+  "sample": 4000,
+  "seed": 42,
+  "test_ratio": 0.2
+ },
+ "parse_stats": {
+  "total_rows": 5000,
+  "valid_rows": 5000,
+  "bad_rows": 0,
+  "bad_reasons": {}
+ },
+ "rule_baseline": {
+  "accuracy": 0.5025,
+  "macro_f1": 0.0973,
+  "n_test": 800,
+  "n_classes": 35,
+  "top_classes": [
+   [
+    "Incorrect information on your report",
+    364
+   ],
+   [
+    "Improper use of your report",
+    198
+   ],
+   [
+    "Problem with a company's investigation into an existing problem",
+    112
+   ],
+   [
+    "Took or threatened to take negative or legal action",
+    28
+   ],
+   [
+    "Attempts to collect debt not owed",
+    22
+   ],
+   [
+    "False statements or representation",
+    9
+   ],
+   [
+    "Dealing with your lender or servicer",
+    6
+   ],
+   [
+    "Managing an account",
+    6
+   ],
+   [
+    "Problem with a purchase shown on your statement",
+    6
+   ],
+   [
+    "Problem with fraud alerts or security freezes",
+    4
+   ]
+  ]
+ },
+ "majority_baseline": {
+  "accuracy": 0.455,
+  "macro_f1": 0.0179,
+  "n_test": 800,
+  "n_classes": 35,
+  "top_classes": [
+   [
+    "Incorrect information on your report",
+    364
+   ],
+   [
+    "Improper use of your report",
+    198
+   ],
+   [
+    "Problem with a company's investigation into an existing problem",
+    112
+   ],
+   [
+    "Took or threatened to take negative or legal action",
+    28
+   ],
+   [
+    "Attempts to collect debt not owed",
+    22
+   ],
+   [
+    "False statements or representation",
+    9
+   ],
+   [
+    "Dealing with your lender or servicer",
+    6
+   ],
+   [
+    "Managing an account",
+    6
+   ],
+   [
+    "Problem with a purchase shown on your statement",
+    6
+   ],
+   [
+    "Problem with fraud alerts or security freezes",
+    4
+   ]
+  ]
+ },
+ "majority_label": "Incorrect information on your report",
+ "n_rules_learned": 10
+}
