@@ -104,7 +104,7 @@ def fig6_narrative_trend():
     ax.tick_params(labelsize=8)
     ax.set_ylim(0, 60)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("叙事文本披露率随年份下降（佐证模板化批量投诉）",
+    ax.set_title("叙事文本披露率 2017 年达峰后波动下降（佐证模板化批量投诉）",
                  fontsize=10, loc="left")
     fig.tight_layout()
     fig.savefig(os.path.join(FIGDIR, "fig6_narrative_trend.png"))
