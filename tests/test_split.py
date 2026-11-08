@@ -84,3 +84,23 @@ def test_leakage_check_flags_duplicate_across_split():
     leak = leakage_check(train, test)
     assert leak["overlap_records"] == 1
     assert leak["leak_free"] is False
+
+
+def test_temporal_split_never_uses_future_dates():
+    """时间外划分的强回归测试：训练集与测试集之间不允许任何时间交错。
+
+    这是专门抓"时间泄漏"的断言——如果把未来某月的投诉混进了历史窗口，
+    或划分边界算错导致测试集时间早于训练集，本测试会失败。
+    """
+    data = [
+        _c("2023-01-15", "A"), _c("2023-06-15", "B"),
+        _c("2024-01-15", "C"), _c("2024-06-15", "D"),
+        _c("2025-01-15", "E"), _c("2025-06-15", "F"),
+    ]
+    train, test = temporal_split(data, test_ratio=1 / 3)
+    train_max = max(c.date_received for c in train)
+    test_min = min(c.date_received for c in test)
+    assert train_max <= test_min
+    # 未来（测试期）的投诉绝不会出现在训练集中
+    future_dates = {c.date_received for c in test}
+    assert all(c.date_received not in future_dates for c in train)
