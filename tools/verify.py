@@ -61,10 +61,17 @@ def main():
         expect_files=["figures/fig1_trend.png", "figures/fig2_issue_dist.png",
                       "figures/fig3_baseline.png"])
 
+    run("3b. 重新生成阶段2图表", [PY, "tools/figures_phase2.py"],
+        expect_files=["figures/fig4_class_imbalance.png", "figures/fig5_missing.png",
+                      "figures/fig6_narrative_trend.png", "figures/fig7_baseline_phase2.png"])
+
     run("4. 产物完整性检查", [PY, "-c", (
         "import os,json;"
         "json.load(open('results/verify_eval.json',encoding='utf-8'));"
-        "print('评估结果 JSON 可解析');"
+        "json.load(open('results/eda_report.json',encoding='utf-8'));"
+        "json.load(open('results/split_report.json',encoding='utf-8'));"
+        "json.load(open('results/text_baseline_eval.json',encoding='utf-8'));"
+        "print('评估/EDA/划分/文本基线 JSON 均可解析');"
         "print('样本数据行数:', sum(1 for _ in open('data/sample.csv',encoding='utf-8',errors='replace'))-1)"
     )])
 

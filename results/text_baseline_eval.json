@@ -1,0 +1,63 @@
+{
+ "config": {
+  "data": "complaints.csv",
+  "sample": 200000,
+  "seed": 42,
+  "seeds": [
+   42,
+   43,
+   44,
+   45,
+   46
+  ],
+  "test_ratio": 0.2
+ },
+ "parse_stats": {
+  "total_rows": 16545376,
+  "valid_rows": 16545376
+ },
+ "dedup": {
+  "before": 200000,
+  "after": 84653,
+  "removed": 115347
+ },
+ "split": {
+  "n_train": 67722,
+  "n_test": 16931,
+  "n_text_train": 30201,
+  "n_text_test": 1469
+ },
+ "text_baseline": {
+  "accuracy_mean": 0.3553,
+  "accuracy_std": 0.0,
+  "macro_f1_mean": 0.1818,
+  "macro_f1_std": 0.0,
+  "per_seed_accuracy": [
+   0.3553,
+   0.3553,
+   0.3553,
+   0.3553,
+   0.3553
+  ],
+  "per_seed_macro_f1": [
+   0.1818,
+   0.1818,
+   0.1818,
+   0.1818,
+   0.1818
+  ],
+  "n_classes_in_test": 68
+ },
+ "meta_baseline": {
+  "accuracy": 0.098,
+  "macro_f1": 0.0337,
+  "n_test": 1469,
+  "note": "在'有叙事测试子集'上评估，与文本基线公平可比"
+ },
+ "meta_baseline_full_test": {
+  "accuracy": 0.031,
+  "macro_f1": 0.0273,
+  "n_test": 16931,
+  "note": "在全量测试集上评估，反映产品分布漂移的严重程度"
+ }
+}

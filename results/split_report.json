@@ -1,0 +1,33 @@
+{
+ "config": {
+  "data": "complaints.csv",
+  "sample": 300000,
+  "seed": 42,
+  "test_ratio": 0.2
+ },
+ "parse_stats": {
+  "total_rows": 16545376,
+  "valid_rows": 16545376,
+  "bad_rows": 0,
+  "bad_reasons": {}
+ },
+ "dedup": {
+  "before": 300000,
+  "after": 115778,
+  "removed": 184222
+ },
+ "split": {
+  "n_train": 92622,
+  "n_test": 23156,
+  "train_min_date": "2011-12-01",
+  "train_max_date": "2025-11-08",
+  "test_min_date": "2025-11-08",
+  "test_max_date": "2026-07-05T08:20:57.000Z"
+ },
+ "leakage": {
+  "train_unique_consumers": 92622,
+  "test_records": 23156,
+  "overlap_records": 0,
+  "leak_free": true
+ }
+}

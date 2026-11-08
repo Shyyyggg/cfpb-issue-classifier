@@ -1,7 +1,11 @@
-# CFPB 投诉问题类型分类器 — 阶段 1 原型
+# CFPB 投诉问题类型分类器
 
-基于 CFPB 消费者投诉数据库的规则基线分类器：给定投诉的结构化字段，
-预测其问题类型（Issue）。本仓库为课程项目阶段 1 提交物。
+基于 CFPB 消费者投诉数据库，给定投诉的结构化字段与叙事文本，
+预测其问题类型（Issue）。本仓库为课程项目的累积提交：
+
+- **阶段 1**（tag `phase-1-submission`）：问题定义 + 规则基线原型。
+- **阶段 2**（tag `phase-2-submission`）：数据与实验设计——数据字典、
+  探索性分析、防泄漏时间外划分、TF-IDF + 逻辑回归文本基线。
 
 ## 环境设置
 
@@ -39,7 +43,7 @@ python -m src.evaluate --data data/sample.csv --sample 4000 --seed 42
 ## 运行测试
 
 ```bash
-pytest tests/ -v        # 16 个测试
+pytest tests/ -v        # 28 个测试
 ```
 
 ## 一键验证（推荐）
@@ -48,24 +52,52 @@ pytest tests/ -v        # 16 个测试
 python tools/verify.py
 ```
 
-依次执行：全部自动化测试 → 样本数据评估流水线 → 重新生成报告图表 → 产物完整性
+依次执行：全部自动化测试 → 样本数据评估流水线 → 重新生成图表 → 产物完整性
 检查。全部通过时输出 `4/4 通过` 并以退出码 0 结束；任一失败则退出码 1。
+
+## 阶段 2 数据与实验设计
+
+```bash
+# 探索性分析（类别不平衡、缺失模式、叙事披露率趋势）
+python -m src.eda --data /path/to/complaints.csv --sample 300000 --seed 42 \
+    --out results/eda_report.json
+
+# 防泄漏划分（时间外 + 消费者级去重 + 泄漏检查）
+python -m src.split --data /path/to/complaints.csv --sample 300000 --seed 42 \
+    --out results/split_report.json
+
+# 文本基线（TF-IDF + 逻辑回归，5 种子置信区间）
+python -m src.text_baseline --data /path/to/complaints.csv --sample 200000 \
+    --seed 42 --seeds 42 43 44 45 46 --out results/text_baseline_eval.json
+
+# 生成数据字典
+python -m src.datadict --out docs/data_dictionary.md
+
+# 生成阶段 2 图表
+python tools/figures_phase2.py
+```
 
 ## 重新生成报告图表
 
 ```bash
-python tools/figures.py   # 读取 results/ 与聚合统计，输出 figures/*.png
+python tools/figures.py          # 阶段 1 图表
+python tools/figures_phase2.py   # 阶段 2 图表
 ```
 
 ## 仓库结构
 
 ```
-src/parser.py     流式 CSV 解析、字段校验、产品名归一化
-src/sampler.py    蓄水池抽样与确定性训练/测试划分
-src/baseline.py   规则基线（Product→高频 Issue）与多数类对照基线
-src/evaluate.py   准确率/宏 F1 评估（指标自行实现，可审查复算）
-tools/            样本提取与图表生成脚本
-tests/            11 个自动化测试（含边界输入）
+src/parser.py       流式 CSV 解析、字段校验、产品名归一化
+src/sampler.py      蓄水池抽样与确定性训练/测试划分
+src/baseline.py     规则基线（Product→高频 Issue）与多数类对照基线
+src/evaluate.py     准确率/宏 F1 评估（指标自行实现，可审查复算）
+src/split.py        时间外划分 + 消费者级去重 + 泄漏检查（阶段 2）
+src/eda.py          探索性分析（阶段 2）
+src/text_baseline.py TF-IDF + 逻辑回归文本基线（阶段 2）
+src/datadict.py     数据字典生成（阶段 2）
+tools/              样本提取与图表生成脚本
+tests/              28 个自动化测试（含边界输入与防泄漏检查）
+docs/               数据字典、提示词记录等文档
 ```
 
 ## 公开声明

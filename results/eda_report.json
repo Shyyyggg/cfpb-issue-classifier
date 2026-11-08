@@ -1,0 +1,184 @@
+{
+ "config": {
+  "data": "complaints.csv",
+  "sample": 300000,
+  "seed": 42
+ },
+ "parse_stats": {
+  "total_rows": 16545376,
+  "valid_rows": 16545376,
+  "bad_rows": 0
+ },
+ "class_imbalance": {
+  "n_records": 300000,
+  "n_classes": 171,
+  "top10": [
+   [
+    "Incorrect information on your report",
+    132773,
+    0.4426
+   ],
+   [
+    "Improper use of your report",
+    57706,
+    0.1924
+   ],
+   [
+    "Problem with a company's investigation into an existing problem",
+    37766,
+    0.1259
+   ],
+   [
+    "Problem with a credit reporting company's investigation into an existing problem",
+    10572,
+    0.0352
+   ],
+   [
+    "Attempts to collect debt not owed",
+    8304,
+    0.0277
+   ],
+   [
+    "Written notification about debt",
+    4144,
+    0.0138
+   ],
+   [
+    "Managing an account",
+    4005,
+    0.0134
+   ],
+   [
+    "Took or threatened to take negative or legal action",
+    2646,
+    0.0088
+   ],
+   [
+    "False statements or representation",
+    2148,
+    0.0072
+   ],
+   [
+    "Loan modification,collection,foreclosure",
+    2051,
+    0.0068
+   ]
+  ],
+  "top10_share": 0.8737,
+  "n_tail_classes": 41,
+  "tail_support_total": 187
+ },
+ "missing_patterns": {
+  "sub_product": {
+   "missing": 4389,
+   "rate": 0.0146
+  },
+  "sub_issue": {
+   "missing": 16710,
+   "rate": 0.0557
+  },
+  "narrative": {
+   "missing": 231128,
+   "rate": 0.7704
+  },
+  "state": {
+   "missing": 1090,
+   "rate": 0.0036
+  },
+  "zip_code": {
+   "missing": 30,
+   "rate": 0.0001
+  },
+  "company_response": {
+   "missing": 4945,
+   "rate": 0.0165
+  },
+  "timely_response": {
+   "missing": 0,
+   "rate": 0.0
+  },
+  "n_records": 300000
+ },
+ "narrative_coverage_by_year": {
+  "2011": {
+   "total": 54,
+   "with_narrative": 0,
+   "coverage": 0.0
+  },
+  "2012": {
+   "total": 1354,
+   "with_narrative": 0,
+   "coverage": 0.0
+  },
+  "2013": {
+   "total": 2023,
+   "with_narrative": 0,
+   "coverage": 0.0
+  },
+  "2014": {
+   "total": 2760,
+   "with_narrative": 0,
+   "coverage": 0.0
+  },
+  "2015": {
+   "total": 3067,
+   "with_narrative": 965,
+   "coverage": 0.3146
+  },
+  "2016": {
+   "total": 3409,
+   "with_narrative": 1301,
+   "coverage": 0.3816
+  },
+  "2017": {
+   "total": 4435,
+   "with_narrative": 2157,
+   "coverage": 0.4864
+  },
+  "2018": {
+   "total": 4639,
+   "with_narrative": 2154,
+   "coverage": 0.4643
+  },
+  "2019": {
+   "total": 4991,
+   "with_narrative": 2221,
+   "coverage": 0.445
+  },
+  "2020": {
+   "total": 8150,
+   "with_narrative": 3085,
+   "coverage": 0.3785
+  },
+  "2021": {
+   "total": 8857,
+   "with_narrative": 3597,
+   "coverage": 0.4061
+  },
+  "2022": {
+   "total": 14480,
+   "with_narrative": 6109,
+   "coverage": 0.4219
+  },
+  "2023": {
+   "total": 23304,
+   "with_narrative": 8631,
+   "coverage": 0.3704
+  },
+  "2024": {
+   "total": 49869,
+   "with_narrative": 14826,
+   "coverage": 0.2973
+  },
+  "2025": {
+   "total": 99036,
+   "with_narrative": 22277,
+   "coverage": 0.2249
+  },
+  "2026": {
+   "total": 69572,
+   "with_narrative": 1549,
+   "coverage": 0.0223
+  }
+ }
+}

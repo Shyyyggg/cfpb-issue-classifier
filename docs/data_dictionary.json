@@ -1,0 +1,130 @@
+[
+ {
+  "index": 1,
+  "name": "date_received",
+  "type": "日期",
+  "description": "投诉被 CFPB 接收的日期（ISO8601）",
+  "example": "2024-01-25T19:56:56.000Z",
+  "missing_handling": "缺失/非法日期整条拒绝"
+ },
+ {
+  "index": 2,
+  "name": "product",
+  "type": "分类",
+  "description": "产品大类（已按历史 schema 归一化）",
+  "example": "Credit reporting or other personal consumer reports",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 3,
+  "name": "sub_product",
+  "type": "分类",
+  "description": "产品子类",
+  "example": "Credit reporting",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 4,
+  "name": "issue",
+  "type": "标签",
+  "description": "问题类型（本项目预测目标，181 类）",
+  "example": "Incorrect information on your report",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 5,
+  "name": "sub_issue",
+  "type": "分类",
+  "description": "问题子类",
+  "example": "Account status incorrect",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 6,
+  "name": "narrative",
+  "type": "文本",
+  "description": "消费者自述（自由文本，平均 1020 字符）",
+  "example": "They keep calling about a debt I do not owe.",
+  "missing_handling": "空串表示未提供"
+ },
+ {
+  "index": 7,
+  "name": "company_public_response",
+  "type": "文本",
+  "description": "公司对 CFPB 的公开回应",
+  "example": "Company has responded to the consumer...",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 8,
+  "name": "company",
+  "type": "分类",
+  "description": "被投诉公司名",
+  "example": "Experian Information Solutions Inc.",
+  "missing_handling": "空值记为 UNKNOWN，去除首尾引号"
+ },
+ {
+  "index": 9,
+  "name": "state",
+  "type": "分类",
+  "description": "消费者所在州（大写两位缩写）",
+  "example": "TN",
+  "missing_handling": "空值记为 UNKNOWN，统一转大写"
+ },
+ {
+  "index": 10,
+  "name": "zip_code",
+  "type": "分类",
+  "description": "消费者邮编（5 位）",
+  "example": "38141",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 11,
+  "name": "tags",
+  "type": "分类",
+  "description": "标签（如 Servicemember）",
+  "example": "Older American",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 12,
+  "name": "submitted_via",
+  "type": "分类",
+  "description": "提交渠道",
+  "example": "Web",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 13,
+  "name": "date_sent_to_company",
+  "type": "日期",
+  "description": "投诉转交公司的日期",
+  "example": "2024-01-25T19:56:59.000Z",
+  "missing_handling": "缺失不拒绝"
+ },
+ {
+  "index": 14,
+  "name": "company_response",
+  "type": "分类",
+  "description": "公司给消费者的处理结果",
+  "example": "Closed with non-monetary relief",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 15,
+  "name": "timely_response",
+  "type": "布尔",
+  "description": "公司是否及时响应（Yes/No）",
+  "example": "Yes",
+  "missing_handling": "空值记为 UNKNOWN"
+ },
+ {
+  "index": 16,
+  "name": "complaint_id",
+  "type": "标识",
+  "description": "投诉唯一编号",
+  "example": "8223945",
+  "missing_handling": "空值记为 UNKNOWN"
+ }
+]
